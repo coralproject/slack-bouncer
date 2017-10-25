@@ -1,0 +1,38 @@
+<% include partials/header %>
+
+<div class="alert alert-warning" role="alert">
+  <b>Note:</b> Currently you cannot update a configuration, you must delete it and create a new one.
+</div>
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="/">Home</a></li>
+  <li class="breadcrumb-item"><a href="/configurations">Configurations</a></li>
+  <li class="breadcrumb-item active">Edit Configuration</li>
+</ol>
+<header>
+  <div class="btn-group float-right" id="edit_configuration_buttons" data-id="<%= configuration.id %>" role="group">
+    <% if (configuration.disabled) { %>
+      <button type="button" class="btn btn-light" data-action="enable">Enable</button>
+    <% } else { %>
+      <button type="button" class="btn btn-light" data-action="disable">Disable</button>
+    <% } %>
+    <button type="button" class="btn btn-light" data-action="delete">Delete</button>
+  </div>
+  <h2 class="d-inline-block">Edit Configuration</h2>
+  <small class="d-block">Added by <i><%= configuration.added_by.name %></i> on <i><%= configuration.created_at.toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'}) %></i></small>
+</header>
+<article class="mt-5">
+  <% if (configuration.disabled) { %>
+    <div class="alert alert-info" role="alert">
+      <strong>This configuration is disabled.</strong> It will not forwared messages to the designated slack channel until reenabled.
+    </div>
+  <% } %>
+  <% if (installation.disabled) { %>
+    <div class="alert alert-info" role="alert">
+      <strong>This configurations installation is disabled.</strong> It will not forwared messages to the designated slack channel until it is reenabled.
+    </div>
+  <% } %>
+  <p>This configuration will post moderatable comments from the <a href="/installation/<%= installation.id %>"><%= installation.name %></a> installation to the <b>#<%= configuration.channel %></b> channel.</p>
+</article>
+
+<% include partials/footer %>

@@ -1,0 +1,125 @@
+const express = require('express');
+const uuid = require('uuid');
+const Joi = require('joi');
+const slack = require('../services/slack');
+const { Configuration, Installation } = require('../models');
+const router = express.Router();
+
+router.get('/', async (req, res, next) => {
+  try {
+    const { installation_id } = req.query;
+    const installations = await Installation.find({ team_id: req.team.id });
+
+    // If the current team has an access token, then load the channels.
+    let channels;
+    if (req.team.access_token) {
+      const response = await slack.channels.list(req.team.access_token);
+
+      if (!response.ok) {
+        req.flash('danger', "Can't load the Slack channels");
+        return next(new Error(response.error));
+      }
+
+      // Save a reference to the channels.
+      channels = response.channels;
+    }
+
+    return res.render('add_configuration', {
+      channels,
+      installations,
+      installation_id,
+      csrfToken: req.csrfToken(),
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+router.post('/', async (req, res, next) => {
+  if (!req.team.access_token) {
+    const err = new Error('team missing access token');
+    err.status = 401;
+    return next(err);
+  }
+
+  const { value: body, error: err } = Joi.validate(
+    req.body,
+    Joi.object().keys({
+      installation_id: Joi.string().required(),
+      channel_id: Joi.string().required(),
+    }),
+    {
+      stripUnknown: true,
+      convert: false,
+      presence: 'required',
+    }
+  );
+  if (err) {
+    return next(err);
+  }
+
+  const response = await slack.channels.list(req.team.access_token);
+
+  if (!response.ok) {
+    req.flash('danger', "Can't load the Slack channels");
+    return next(new Error(response.error));
+  }
+
+  const channel = response.channels.find(({ id }) => id === body.channel_id);
+
+  const configuration = new Configuration({
+    id: uuid.v4(),
+    team_id: req.team.id,
+    added_by: req.user,
+    installation_id: body.installation_id,
+    channel: channel.name,
+    channel_id: channel.id,
+  });
+
+  await configuration.save();
+
+  req.flash('success', 'The configuration was created!');
+  res.redirect('/configuration/' + configuration.id);
+});
+
+router.param('id', async (req, res, next, id) => {
+  try {
+    const configuration = await Configuration.findOne({
+      id,
+      team_id: req.team.id,
+    });
+    if (!configuration) {
+      return next(new Error('configuration not found'));
+    }
+
+    req.configuration = configuration;
+    res.locals.configuration = configuration.toObject();
+
+    const installation = await Installation.findOne({
+      id: configuration.installation_id,
+      team_id: req.team.id,
+    });
+    if (!installation) {
+      return next(new Error('installation not found'));
+    }
+
+    req.installation = installation;
+    res.locals.installation = installation.toObject();
+
+    next();
+  } catch (err) {
+    return next(err);
+  }
+});
+
+router.get('/:id', async (req, res, next) => {
+  try {
+    return res.render('edit_configuration', {
+      csrfToken: req.csrfToken(),
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+module.exports = router;

@@ -1,0 +1,66 @@
+{
+  "name": "@coralproject/slack-bouncer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "",
+  "license": "Apache-2.0",
+  "bin": {
+    "slack-bouncer": "./cli.js"
+  },
+  "scripts": {
+    "start": "./cli.js serve",
+    "dev": "nodemon ./cli.js serve",
+    "lint": "eslint .",
+    "commit": "commit-wizard"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "devDependencies": {
+    "eslint": "^4.8.0",
+    "eslint-config-prettier": "^2.6.0",
+    "eslint-plugin-prettier": "^2.3.1",
+    "nodemon": "^1.12.1",
+    "prettier": "^1.7.4"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^0.14.5",
+    "accepts": "^1.3.4",
+    "body-parser": "^1.18.2",
+    "cli-table": "^0.3.1",
+    "commander": "^2.11.0",
+    "connect-redis": "^3.3.2",
+    "convict": "^4.0.1",
+    "crypto-js": "^3.1.9-1",
+    "csurf": "^1.9.0",
+    "dotenv": "^4.0.0",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "graphql-request": "^1.4.0",
+    "helmet": "^3.9.0",
+    "ioredis": "^3.1.4",
+    "joi": "^11.3.4",
+    "jsonwebtoken": "^8.1.0",
+    "lodash": "^4.17.4",
+    "mongoose": "^4.12.1",
+    "node-fetch": "^1.7.3",
+    "pluralize": "^7.0.0",
+    "pre-git": "^3.15.3",
+    "semver": "^5.4.1",
+    "uuid": "^3.1.0",
+    "winston": "^3.0.0-rc1"
+  },
+  "config": {
+    "pre-git": {
+      "pre-commit": [
+        "yarn lint"
+      ],
+      "pre-push": [],
+      "post-commit": [],
+      "post-checkout": [],
+      "post-merge": []
+    }
+  }
+}

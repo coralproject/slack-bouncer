@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <% if (typeof csrfToken === 'string') { %><meta name="_csrf" content="<%= csrfToken %>"/><% } %>
+    <title>Coral Project Talk - Slack Bouncer</title>
+    <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" integrity="sha256-3YM6A3pH4QFCl9WbSU8oXF5N6W/2ylvW0o2g+Z6TmLQ=" crossorigin="anonymous" />
+    <link type="text/css" href="/static/styles.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="/">Coral Project Talk</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <% if (is_authenticated) { %>
+        <div class="collapse navbar-collapse " id="navbarsExampleDefault">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item<% if (path === '/configurations') { %> active<% } %>">
+              <a class="nav-link" href="/configurations">Configurations</a>
+            </li>
+            <li class="nav-item<% if (path === '/installations') { %> active<% } %>">
+              <a class="nav-link" href="/installations">Installations</a>
+            </li>
+          </ul>
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <b><%= team.name %></b> as <%= user.name %>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="/account">Account</a>
+              <a class="dropdown-item" href="/auth/destroy">Logout</a>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </nav>
+
+    <div class="container">
+
+      <div class="starter-template">
+
+        <% while (flash && flash.length > 0) { const message = flash.pop(); %>
+          <div class="alert alert-<%= message.type %>" role="alert">
+            <%= message.message %>
+          </div>
+        <% } %>

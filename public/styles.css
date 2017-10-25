@@ -1,0 +1,20 @@
+body {
+  padding-top: 2rem;
+}
+
+.starter-template {
+  padding: 3rem 1.5rem;
+}
+
+.config_list {
+  margin-top: 40px;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+pre.code {
+  background: rgb(236, 236, 236);
+  padding: 10px;
+}

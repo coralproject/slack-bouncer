@@ -1,0 +1,35 @@
+<% include partials/header %>
+
+<% if (is_authenticated) { %>
+  <div style="max-width:500px;margin:0 auto;text-align: center;">
+    <p class="text-center mb-5">Hello <b><%= user.name %></b>!</p>
+    <% if (counts.installs === 0 || counts.configs === 0) { %>
+      <p class="text-left">Here's what you have to do to get going:</p>
+      <ol class="list-group">
+        <li class="list-group-item d-flex justify-content-between list-group-item-action align-items-center<% if (counts.installs > 0) { %> disabled<% } %>">
+          <% if (counts.installs > 0) { %>
+            1. Link a Talk Installation
+            <span class="badge badge-success badge-pill">Completed</span>
+          <% } else { %>
+            <a href="/installation">1. Link a Talk Installation</a>
+          <% } %>
+        </li>
+        <li class="list-group-item d-flex justify-content-between list-group-item-action align-items-center<% if (counts.configs > 0) { %> disabled<% } %>">
+          <% if (counts.configs > 0) { %>
+            2. Create a Configuration
+            <span class="badge badge-success badge-pill">Completed</span>
+          <% } else { %>
+            <a href="/configuration">2. Create a Configuration</a>
+          <% } %>
+        </li>
+      </ol>
+    <% } else { %>
+      <p class="mt-5">You're all setup! 🎉</p>
+      <p>Go ahead and manage your <a href="/configurations">Configurations</a> and <a href="/installations">Installations</a>.</p>
+    <% } %>
+  </div>
+<% } else { %>
+  <p class="text-center"><a href="/auth/authorize"><img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png" srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" /></a></p>
+<% } %>
+
+<% include partials/footer %>

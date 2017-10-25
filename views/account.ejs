@@ -1,0 +1,14 @@
+<% include partials/header %>
+
+<h2 class="mb-5">Account</h2>
+
+<dl>
+  <dt>Slack User</dt>
+  <dd><%= user.name %></dd>
+  <dt>Slack Team</dt>
+  <dd><%= team.name %></dd>
+  <dt>Team Token Scopes</dt>
+  <dd><%= scope.split(',').join(', ') %></dd>
+</dl>
+
+<% include partials/footer %>

@@ -1,0 +1,93 @@
+<% include partials/header %>
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="/">Home</a></li>
+  <li class="breadcrumb-item"><a href="/installations">Installations</a></li>
+  <li class="breadcrumb-item active">Add Installation</li>
+</ol>
+<header>
+  <h2>Add Installation</h2>
+</header>
+<article class="mt-5">
+  <p>
+    This will create a new installation that will allow your local Talk instance
+    to communicate with this Slack application proxy. We'll need some
+    information about your installation, and some credentials.
+  </p>
+  <div class="list-group mb-3">
+    <details class="list-group-item">
+      <summary class="font-weight-bold">Security Considerations</summary>
+      <p class="mt-3">
+        We'll use the handshake token that is generated below to encrypt your
+        application access token, so it will only be available in transit to
+        this application. When your Talk instance sends us a comment, the
+        handshake token will be sent along with the request. This will be
+        embeded into the call to Slack when we post the message to your channel.
+        When a button is clicked from Slack on the message, the handshake token
+        will be sent back to this application so we can decrypt your access
+        token to update the moderation status of the affected comment via the
+        api to your Talk installation. The result is that even if this
+        application's database were ever comprimised, the access tokens stored
+        inside the application would be protected.
+      </p>
+      <p>
+        Realizing that no security model is perfect, this application is
+        designed in a way that would permit it to be installed as your own
+        running instance if required. Visit <a href="#" target="_blank">github.com/coralproject/slack</a>
+        to view this project.
+      </p>
+    </details>
+  </div>
+  <p>
+    First we will create the <b>Access Token</b> needed to access your Talk
+    installation when you click to moderate from the Slack interface:
+  </p>
+  <pre><code class="bash"># find or create a moderator user that can be used as the basis for the token
+./bin/cli users list
+# create a token for the user with the given id
+./bin/cli token create ${USER_ID} slack-bouncer</code></pre>
+  <p>
+    This should then provide you with the <b>Access Token</b>. Now you should
+    add the following configuration to your Talk instance:
+  </p>
+  <pre><code class="bash">TALK_SLACK_BOUNCER_HANDSHAKE_TOKEN=<%= handshake_token %>
+TALK_SLACK_BOUNCER_URL=<%= injestion_url %></code></pre>
+  <p>And add the following plugin to your Talk <code>plugins.json</code>:</p>
+  <pre><code class="js">{
+  "server": [
+    // ...
+    {"@coralproject/talk-plugin-slack-bouncer": "<%= client_semver %>"}
+  ],
+  // ...
+}</code></pre>
+  <p>
+    And re-release your application (this includes running <code>./bin/cli plugins reconcile</code>
+    to ensure that the plugin is installed). Once you've completed these
+    actions, enter the information below that was gathered above and click
+    <b>Test Configuration</b>.
+  </p>
+  <hr/>
+  <form method="post" id="add_installation">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <input type="hidden" name="handshake_token" value="<%= handshake_token %>"/>
+    <div class="form-group">
+      <label for="name">Installation Name</label>
+      <input required type="text" class="form-control" id="name" aria-describedby="nameHelp" placeholder="Enter Installation Name" name="name">
+      <small id="nameHelp" class="form-text text-muted">Name your installation something memorable, like <b>My Organization: Production</b>.</small>
+    </div>
+    <div class="form-group">
+      <label for="accessToken">Access Token</label>
+      <input required type="password" class="form-control" id="accessToken" aria-describedby="accessTokenHelp" placeholder="Enter Access Token" name="access_token">
+      <small id="accessTokenHelp" class="form-text text-muted">You're access token will be stored encrypted with your handshake token that is linked to this installation and is never stored.</small>
+    </div>
+    <div class="form-group">
+      <label for="rootURL">Root URL</label>
+      <input required type="url" class="form-control" id="rootURL" aria-describedby="rootURLHelp" placeholder="Enter Root URL" name="root_url">
+      <small id="rootURLHelp" class="form-text text-muted">This is the value of the <code>TALK_ROOT_URL</code> configuration variable. This will be stored unencrypted as it's public knowledge.</small>
+    </div>
+    <button type="submit" class="btn btn-secondary">Test Configuration</button>
+    <small id="verification_status"></small>
+  </form>
+</article>
+
+<% include partials/footer %>

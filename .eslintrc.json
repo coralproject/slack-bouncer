@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "prettier"
+  ],
+  "plugins": [
+    "prettier"
+  ],
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
+  "rules": {
+    "prettier/prettier": "error",
+    "no-undef": "error",
+    "no-unused-expressions": "error",
+    "no-unused-vars": ["error", {"argsIgnorePattern": "next"}],
+    "no-empty-pattern": "error",
+    "default-case": "warn"
+  }
+}

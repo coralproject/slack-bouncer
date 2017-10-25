@@ -1,0 +1,17 @@
+<% if (configurations.length === 0) { %>
+  <div class="alert alert-info" role="alert">
+    <strong>Looks like you don't have any configurations</strong>, create one by clicking below to start the flow of your comments into Slack.
+  </div>
+  <a class="btn btn-md btn-outline-secondary btn-block mt-3" href="/configuration<% if (typeof installation !== 'undefined') { %>?installation_id=<%= installation.id %><% } %>">Add Configuration</a>
+<% } else { %>
+  <div class="list-group config_list">
+    <% configurations.forEach((configuration) => { %>
+      <a href="/configuration/<%= configuration.id %>" class="list-group-item list-group-item-action flex-column align-items-start">
+        <p class="mb-1">Post moderatable comments to <b>#<%= configuration.channel %></b><% if (typeof configuration.installation !== 'undefined') { %> from the <b><%= configuration.installation.name %></b> installation<% } %>.</p>
+        <small>Added by <i><%= configuration.added_by.name %></i> on <i><%= configuration.created_at.toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'}) %></i></small>
+        <% if (configuration.disabled) { %><span class="badge badge-warning">Disabled</span><% } %>
+        <% if ((typeof configuration.installation !== 'undefined' && configuration.installation.disabled) || (typeof installation !== 'undefined' && installation.disabled)) { %><span class="badge badge-warning">Installation Disabled</span><% } %>
+      </a>
+    <%}) %>
+  </div>
+<% } %>

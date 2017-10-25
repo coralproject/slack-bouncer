@@ -1,0 +1,58 @@
+<% include partials/header %>
+
+<div class="alert alert-warning" role="alert">
+  <b>Note:</b> Currently you cannot update an installation, you must delete it and create a new one.
+</div>
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="/">Home</a></li>
+  <li class="breadcrumb-item"><a href="/installations">Installations</a></li>
+  <li class="breadcrumb-item active">Edit Installation</li>
+</ol>
+<header>
+  <div class="btn-group float-right" role="group" id="edit_installation_buttons" data-id="<%= installation.id %>">
+    <% if (installation.disabled) { %>
+      <button type="button" class="btn btn-light" data-action="enable">Enable</button>
+    <% } else { %>
+      <button type="button" class="btn btn-light" data-action="disable">Disable</button>
+    <% } %>
+    <% if (configurations.length > 0) { %>
+      <button type="button" class="btn btn-light" data-action="delete-disabled">Delete</button>
+    <% } else { %>
+      <button type="button" class="btn btn-light" data-action="delete">Delete</button>
+    <% } %>
+  </div>
+  <h2 class="d-inline-block">Edit Installation</h2>
+  <small class="d-block">Added by <i><%= installation.added_by.name %></i> on <i><%= installation.created_at.toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'}) %></i></small>
+</header>
+<article class="mt-5">
+  <% if (installation_token) { %>
+    <div class="alert alert-danger" role="alert">
+      <h4 class="alert-heading">Last step!</h4>
+      <p>The following token token will not be generated again, make sure you add it to your application via the environment:</p>
+      <pre><code>TALK_SLACK_BOUNCER_AUTH_TOKEN=<%= installation_token %></code></pre>
+      <p class="mb-0">This will require you to redeploy your application again to take affect.</p>
+    </div>
+  <% } %>
+  <% if (installation.disabled) { %>
+    <div class="alert alert-info" role="alert">
+      <strong>This installation is disabled.</strong> It will not forwared messages to the linked configurations or process moderation actions from Slack until reenabled.
+    </div>
+  <% } %>
+
+  <h3>Summary</h3>
+  <dl>
+    <dt>Name</dt>
+    <dd><%= installation.name %></dd>
+    <dt>Root URL</dt>
+    <dd><%= installation.root_url %></dd>
+    <dt>Access Token</dt>
+    <dd><i>encrypted</i></dd>
+  </dl>
+
+  <h3>Linked Configurations</h3>
+  <p>You currently have <%= configurations.length %> linked <%= pluralize('configuration', configurations.length) %>.</p>
+  <% include components/configurations.ejs %>
+</article>
+
+<% include partials/footer %>
