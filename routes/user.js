@@ -2,7 +2,7 @@ const express = require('express');
 const config = require('../config');
 const uuid = require('uuid');
 const slack = require('../services/slack');
-const { User, Team } = require('../models');
+const { User } = require('../models');
 const querystring = require('querystring');
 const { URL } = require('url');
 const router = express.Router();
@@ -19,8 +19,8 @@ router.get('/authorize', (req, res, next) => {
   const uri = new URL('https://slack.com/oauth/authorize');
   uri.search = querystring.stringify({
     client_id: config.get('slack.client_id'),
-    redirect_uri: config.get('root_url') + 'team/authorize/callback',
-    scope: 'channels:read,chat:write:bot',
+    redirect_uri: config.get('root_url') + 'user/authorize/callback',
+    scope: 'groups:read,channels:read,chat:write:bot',
     state,
   });
 
@@ -43,7 +43,7 @@ router.get('/authorize/callback', async (req, res, next) => {
 
   let body;
   try {
-    body = await slack.oauth.access(req.query.code, 'team/authorize/callback');
+    body = await slack.oauth.access(req.query.code, 'user/authorize/callback');
 
     if (!body.ok) {
       return next(new Error(body.error));
@@ -53,24 +53,12 @@ router.get('/authorize/callback', async (req, res, next) => {
   }
 
   // Now we have authenticated with slack! Save some details.
-
   try {
-    const user = await User.findOne({ id: body.user_id });
-    const team = await Team.findOneAndUpdate(
-      {
-        id: body.team_id,
-      },
-      {
-        access_token: body.access_token,
-      },
-      { new: true }
-    );
+    await User.update({ id: req.user.id }, { access_token: body.access_token });
 
     // Save the access token to this session.
     req.session.access_token = body.access_token;
     req.session.scope = body.scope;
-    req.session.user_id = user.id;
-    req.session.team_id = team.id;
 
     req.flash(
       'success',

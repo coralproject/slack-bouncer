@@ -10,18 +10,10 @@ router.get('/', async (req, res, next) => {
     const { installation_id } = req.query;
     const installations = await Installation.find({ team_id: req.team.id });
 
-    // If the current team has an access token, then load the channels.
+    // If the current user has an access token, then load the channels.
     let channels;
-    if (req.team.access_token) {
-      const response = await slack.channels.list(req.team.access_token);
-
-      if (!response.ok) {
-        req.flash('danger', "Can't load the Slack channels");
-        return next(new Error(response.error));
-      }
-
-      // Save a reference to the channels.
-      channels = response.channels;
+    if (req.user.access_token) {
+      channels = await slack.channels.list(req.user.access_token);
     }
 
     return res.render('add_configuration', {
@@ -36,8 +28,8 @@ router.get('/', async (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
-  if (!req.team.access_token) {
-    const err = new Error('team missing access token');
+  if (!req.user.access_token) {
+    const err = new Error('user missing access token');
     err.status = 401;
     return next(err);
   }
@@ -58,28 +50,26 @@ router.post('/', async (req, res, next) => {
     return next(err);
   }
 
-  const response = await slack.channels.list(req.team.access_token);
+  try {
+    const channels = await slack.channels.list(req.user.access_token);
+    const channel = channels.find(({ id }) => id === body.channel_id);
 
-  if (!response.ok) {
-    req.flash('danger', "Can't load the Slack channels");
-    return next(new Error(response.error));
+    const configuration = new Configuration({
+      id: uuid.v4(),
+      team_id: req.team.id,
+      added_by: req.user,
+      installation_id: body.installation_id,
+      channel: channel.name,
+      channel_id: channel.id,
+    });
+
+    await configuration.save();
+
+    req.flash('success', 'The configuration was created!');
+    res.redirect('/configuration/' + configuration.id);
+  } catch (err) {
+    return next(err);
   }
-
-  const channel = response.channels.find(({ id }) => id === body.channel_id);
-
-  const configuration = new Configuration({
-    id: uuid.v4(),
-    team_id: req.team.id,
-    added_by: req.user,
-    installation_id: body.installation_id,
-    channel: channel.name,
-    channel_id: channel.id,
-  });
-
-  await configuration.save();
-
-  req.flash('success', 'The configuration was created!');
-  res.redirect('/configuration/' + configuration.id);
 });
 
 router.param('id', async (req, res, next, id) => {

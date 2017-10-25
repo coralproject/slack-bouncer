@@ -3,7 +3,7 @@ const csurf = require('csurf');
 const middleware = require('../middleware');
 const { Configuration, Installation } = require('../models');
 const auth = require('./auth');
-const team = require('./team');
+const user = require('./user');
 const api = require('./api');
 const account = require('./account');
 const configuration = require('./configuration');
@@ -44,6 +44,6 @@ router.use('/configuration', configuration);
 router.use('/configurations', configurations);
 router.use('/installation', installation);
 router.use('/installations', installations);
-router.use('/team', team);
+router.use('/user', user);
 
 module.exports = router;

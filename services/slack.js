@@ -1,11 +1,13 @@
 const fetch = require('node-fetch');
 const config = require('../config');
 const merge = require('lodash/merge');
+const concat = require('lodash/concat');
+const sortBy = require('lodash/sortBy');
 const { URL } = require('url');
 const querystring = require('querystring');
 
 async function listChannels(token) {
-  const res = await fetch('https://slack.com/api/channels.list', {
+  let res = await fetch('https://slack.com/api/channels.list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -17,7 +19,38 @@ async function listChannels(token) {
     }),
   });
 
-  return res.json();
+  let body = await res.json();
+
+  if (!body.ok) {
+    throw new Error(body.error);
+  }
+
+  const { channels } = body;
+
+  res = await fetch('https://slack.com/api/groups.list', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: querystring.stringify({
+      token,
+      exclude_archived: true,
+      exclude_members: true,
+    }),
+  });
+
+  body = await res.json();
+
+  if (!body.ok) {
+    throw new Error(body.error);
+  }
+
+  const { groups } = body;
+
+  return sortBy(
+    concat(channels, groups.filter(({ name }) => !name.startsWith('mpdm'))),
+    'name'
+  );
 }
 
 async function chat(token, channel_id, message, type) {

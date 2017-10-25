@@ -15,10 +15,10 @@
       Looks like you don't have any available installations, <a href="/installation" class="alert-link">create one</a>.
     </div>
   <% } else { %>
-    <% if (!team.access_token || team.access_token.length === 0) { %>
+    <% if (!user.access_token || user.access_token.length === 0) { %>
       <div class="alert alert-danger" role="alert">
         Looks like you haven't authorized us to post to your public channels, without permission we
-        can't post comments to your channels. <a href="/team/authorize" class="alert-link">Authorize now</a>.
+        can't post comments to your channels. <a href="/user/authorize" class="alert-link">Authorize now</a>.
       </div>
     <% } else { %>
       <form id="add_configuration" method="post">

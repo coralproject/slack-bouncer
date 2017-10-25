@@ -3,7 +3,7 @@ const Talk = require('../../services/talk');
 const slack = require('../../services/slack');
 const logger = require('../../logger');
 const config = require('../../config');
-const { Installation, Team, Configuration } = require('../../models');
+const { Installation, Team, Configuration, User } = require('../../models');
 const router = express.Router();
 
 router.post('/interactive', async (req, res, next) => {
@@ -13,7 +13,7 @@ router.post('/interactive', async (req, res, next) => {
     original_message,
     token,
     channel,
-    user,
+    user: slack_user,
   } = JSON.parse(req.body.payload);
 
   // Verify the slack verification token.
@@ -91,6 +91,15 @@ router.post('/interactive', async (req, res, next) => {
       team_id: team.id,
       channel_id: channel.id,
     });
+    if (!configuration) {
+      logger.error("couldn't find the configuration referenced", {
+        comment_id: commentID,
+        installation_id: installationID,
+        team_id: installation.team_id,
+        message_id: original_message.ts,
+      });
+      return;
+    }
 
     if (configuration.disabled) {
       logger.info(
@@ -102,6 +111,17 @@ router.post('/interactive', async (req, res, next) => {
           message_id: original_message.ts,
         }
       );
+      return;
+    }
+
+    const user = await User.findOne({ id: configuration.added_by.id });
+    if (!user) {
+      logger.error("couldn't find the user referenced", {
+        comment_id: commentID,
+        installation_id: installationID,
+        team_id: installation.team_id,
+        message_id: original_message.ts,
+      });
       return;
     }
 
@@ -133,7 +153,7 @@ router.post('/interactive', async (req, res, next) => {
                 // Update the slack messaging.
                 original_message.attachments.push({
                   mrkdwn_in: ['text'],
-                  text: `*:white_check_mark: <@${user.id}> approved this comment*`,
+                  text: `*:white_check_mark: <@${slack_user.id}> approved this comment*`,
                 });
                 break;
               }
@@ -148,7 +168,7 @@ router.post('/interactive', async (req, res, next) => {
                 // Update the slack messaging.
                 original_message.attachments.push({
                   mrkdwn_in: ['text'],
-                  text: `*:no_entry_sign: <@${user.id}> rejected this comment*`,
+                  text: `*:no_entry_sign: <@${slack_user.id}> rejected this comment*`,
                 });
                 break;
               }
@@ -185,11 +205,11 @@ router.post('/interactive', async (req, res, next) => {
                 // Update the slack messaging.
                 original_message.attachments.push({
                   mrkdwn_in: ['text'],
-                  text: `*:no_entry_sign: <@${user.id}> banned this user*`,
+                  text: `*:no_entry_sign: <@${slack_user.id}> banned this user*`,
                 });
                 original_message.attachments.push({
                   mrkdwn_in: ['text'],
-                  text: `*:no_entry_sign: <@${user.id}> rejected this comment*`,
+                  text: `*:no_entry_sign: <@${slack_user.id}> rejected this comment*`,
                 });
                 break;
               }
@@ -225,7 +245,7 @@ router.post('/interactive', async (req, res, next) => {
 
     // Update the message in Slack.
     const body = await slack.chat.update(
-      team.access_token,
+      user.access_token,
       channel.id,
       original_message
     );

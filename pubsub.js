@@ -1,8 +1,9 @@
 const PubSub = require('@google-cloud/pubsub');
 const Talk = require('./services/talk');
 const { URL } = require('url');
-const { Installation, Configuration, Team } = require('./models');
+const { Installation, Configuration, Team, User } = require('./models');
 const logger = require('./logger');
+const uniq = require('lodash/uniq');
 const config = require('./config');
 const slack = require('./services/slack');
 
@@ -33,10 +34,15 @@ function onError(err) {
 async function sendInteractiveMessage(
   comment,
   configuration,
-  team,
+  users,
   installation,
   handshakeToken
 ) {
+  const user = users.find(({ id }) => id === configuration.added_by.id);
+  if (!user) {
+    throw new Error('cannot get referenced user');
+  }
+
   // Create the timestamp field.
   const ts = new Date(comment.created_at).getTime() / 1000;
 
@@ -56,7 +62,7 @@ async function sendInteractiveMessage(
   //   https://api.slack.com/docs/message-attachments
   // For information on how to change this.
   const body = await slack.chat.postMessage(
-    team.access_token,
+    user.access_token,
     configuration.channel_id,
     {
       attachments: [
@@ -178,7 +184,7 @@ async function onMessage(message) {
     handshake_token: handshakeToken ? true : false,
   });
 
-  let installation, configurations, team;
+  let installation, configurations, users;
   try {
     installation = await Installation.findOne({ id: installID });
     if (!installation) {
@@ -206,7 +212,7 @@ async function onMessage(message) {
     }
 
     // Get the team.
-    team = await Team.findOne({ id: installation.team_id });
+    const team = await Team.findOne({ id: installation.team_id });
     if (!team) {
       logger.error('could not process the pubsub message', {
         message_id: message.id,
@@ -235,6 +241,20 @@ async function onMessage(message) {
     });
     if (!configurations || configurations.length === 0) {
       logger.debug('no configurations to send the message to', {
+        message_id: message.id,
+        installation_id: installation.id,
+      });
+      message.ack();
+      return;
+    }
+
+    users = await User.find({
+      id: {
+        $in: uniq(configurations.map(({ added_by: { id } }) => id)),
+      },
+    });
+    if (!users || users.length === 0) {
+      logger.debug('users linked to configurations are not available', {
         message_id: message.id,
         installation_id: installation.id,
       });
@@ -277,7 +297,7 @@ async function onMessage(message) {
         sendInteractiveMessage(
           comment,
           config,
-          team,
+          users,
           installation,
           handshakeToken
         )

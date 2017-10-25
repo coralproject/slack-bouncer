@@ -17,6 +17,7 @@ const UserSchema = new Schema(
       required: true,
     },
     name: String,
+    access_token: String,
     team_id: {
       type: String,
       required: true,
@@ -29,6 +30,13 @@ const UserSchema = new Schema(
     },
   }
 );
+
+UserSchema.set('toObject', {
+  transform: (doc, ret) => {
+    delete ret.access_token;
+    return ret;
+  },
+});
 
 const User = mongoose.model('User', UserSchema);
 
@@ -56,13 +64,6 @@ const ConfigurationSchema = new Schema(
     },
   }
 );
-
-ConfigurationSchema.set('toObject', {
-  transform: (doc, ret) => {
-    delete ret.access_token;
-    return ret;
-  },
-});
 
 const Configuration = mongoose.model('Configuration', ConfigurationSchema);
 
@@ -117,7 +118,6 @@ const Team = mongoose.model(
       },
       name: String,
       domain: String,
-      access_token: String,
       disabled: {
         type: Boolean,
         default: false,
