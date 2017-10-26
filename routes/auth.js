@@ -126,15 +126,7 @@ router.get('/callback', async (req, res, next) => {
     req.session.team_id = team.id;
 
     req.flash('success', "You've signed in!");
-
-    if (req.session.redirect_after_login) {
-      const { redirect_after_login } = req.session;
-      delete req.session.redirect_after_login;
-
-      res.redirect(redirect_after_login);
-    } else {
-      res.redirect('/');
-    }
+    res.redirect('/');
   } catch (err) {
     return next(err);
   }

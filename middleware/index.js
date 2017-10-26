@@ -38,7 +38,6 @@ const notFound = (req, res, next) => {
 
 const authz = (req, res, next) => {
   if (!req.is_authenticated) {
-    req.session.redirect_after_login = req.path;
     return res.redirect('/');
   }
 
