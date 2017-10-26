@@ -2,7 +2,7 @@
   <div class="list-group config_list">
     <% configurations.forEach((configuration) => { %>
       <a href="/configuration/<%= configuration.id %>" class="list-group-item list-group-item-action flex-column align-items-start">
-        <p class="mb-1">Post moderatable comments to <b>#<%= configuration.channel %></b><% if (typeof configuration.installation !== 'undefined') { %> from the <b><%= configuration.installation.name %></b> installation<% } %>.</p>
+        <p class="mb-1">Post new comments to <b>#<%= configuration.channel %></b><% if (typeof configuration.installation !== 'undefined') { %> from the <b><%= configuration.installation.name %></b> installation<% } %>.</p>
         <small>Added by <i><%= configuration.added_by.name %></i> on <i><%= configuration.created_at.toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'}) %></i></small>
         <% if (configuration.disabled) { %><span class="badge badge-warning">Disabled</span><% } %>
         <% if ((typeof configuration.installation !== 'undefined' && configuration.installation.disabled) || (typeof installation !== 'undefined' && installation.disabled)) { %><span class="badge badge-warning">Installation Disabled</span><% } %>
