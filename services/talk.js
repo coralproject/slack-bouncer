@@ -163,7 +163,7 @@ async function banUser(installation, handshakeToken, commentID) {
   }
 }
 
-async function testPlugin(rootURL, accessToken) {
+async function testPlugin(rootURL, handshakeToken, accessToken) {
   // Craft the graph endpoint for Talk.
   const uri = new URL(rootURL);
 
@@ -194,6 +194,7 @@ async function testPlugin(rootURL, accessToken) {
     body: JSON.stringify({
       challenge,
       injestion_url: config.get('injestion_url'),
+      handshake_token: handshakeToken,
     }),
   });
 

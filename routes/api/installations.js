@@ -13,6 +13,7 @@ router.post('/test', middleware.authz, async (req, res, next) => {
     Joi.object().keys({
       name: Joi.string().required(),
       access_token: Joi.string().required(),
+      handshake_token: Joi.string().required(),
       root_url: Joi.string().required(),
     }),
     {
@@ -28,10 +29,14 @@ router.post('/test', middleware.authz, async (req, res, next) => {
     return res.status(400).end();
   }
 
-  const { access_token, root_url } = body;
+  const { access_token, handshake_token, root_url } = body;
 
   try {
-    const version = await Talk.plugin.test(root_url, access_token);
+    const version = await Talk.plugin.test(
+      root_url,
+      handshake_token,
+      access_token
+    );
     logger.debug('installation validation semver passed', {
       client_version: version,
       client_semver: config.get('client_semver'),
