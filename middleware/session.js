@@ -12,6 +12,6 @@ module.exports = session({
   unset: 'destroy',
   cookie: {
     secure: config.get('env') === 'production',
-    maxAge: 60 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000,
   },
 });
