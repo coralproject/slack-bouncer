@@ -33,7 +33,7 @@
       <p>
         Realizing that no security model is perfect, this application is
         designed in a way that would permit it to be installed as your own
-        running instance if required. Visit <a href="#" target="_blank">github.com/coralproject/slack</a>
+        running instance if required. Visit <a href="https://github.com/coralproject/slack-bouncer" target="_blank">github.com/coralproject/slack-bouncer</a>
         to view this project.
       </p>
     </details>
@@ -73,12 +73,12 @@ TALK_SLACK_BOUNCER_URL=<%= injestion_url %></code></pre>
     <div class="form-group">
       <label for="name">Installation Name</label>
       <input required type="text" class="form-control" id="name" aria-describedby="nameHelp" placeholder="Enter Installation Name" name="name">
-      <small id="nameHelp" class="form-text text-muted">Name your installation something memorable, like <b>My Organization: Production</b>.</small>
+      <small id="nameHelp" class="form-text text-muted">Name your installation something memorable, like <b>[Company name]: Production</b>.</small>
     </div>
     <div class="form-group">
       <label for="accessToken">Access Token</label>
       <input required type="password" class="form-control" id="accessToken" aria-describedby="accessTokenHelp" placeholder="Enter Access Token" name="access_token">
-      <small id="accessTokenHelp" class="form-text text-muted">You're access token will be stored encrypted with your handshake token that is linked to this installation and is never stored.</small>
+      <small id="accessTokenHelp" class="form-text text-muted">Your access token will be encrypted, along with your handshake token linked to this installation, and is never stored.</small>
     </div>
     <div class="form-group">
       <label for="rootURL">Root URL</label>

@@ -29,7 +29,93 @@
     <% } %>
   </div>
 <% } else { %>
-  <p class="text-center"><a href="/auth/authorize"><img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png" srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" /></a></p>
+  <h2>Welcome to The Coral Project’s Slack app for Talk</h2>
+
+  <div class="row mt-5 mb-5">
+    <div class="col-md-8">
+      <p>This Slack app lets you add comment moderation actions from <a href="https://coralproject.net">The Coral Project</a>’s Talk platform to your Slack workspace.</p>
+    </div>
+    <div class="col-md-4">
+      <p class="text-center"><a href="/auth/authorize"><img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png" srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" /></a></p>
+    </div>
+  </div>
+
 <% } %>
+
+<div class="row mt-5 mb-5">
+  <div class="col-md-8">
+    <div class="list-group">
+      <details class="list-group-item">
+        <summary class="font-weight-bold">Frequently Asked Questions</summary>
+        <dl class="mt-5">
+          <dt>How does it work?</dt>
+          <dd>
+            <p>If you’re using <a href="https://coralproject.net/products/talk.html">The Coral Project’s Talk platform</a>, this app lets you moderate comments in a channel of your choosing.</p>
+            <p>When a new comment is submitted, it is delivered to your chosen Slack channel along with the headline of the story, a link to the comment, the username, and the comment text. Our app also provides buttons that let you Approve, Reject, and Ban User within Slack itself.</p>
+          </dd>
+
+          <dt>Does it send all the comments to Slack?</dt>
+          <dd>
+            <p>Yes. We’re working on the ability to set up custom queries for different channels. [Let us know if you’re interested in that.](https://coralproject.net/contact.html)</p>
+          </dd>
+
+          <dt>Who has the ability to moderate the comments in Slack?</dt>
+          <dd>
+            <p>Anybody who has access to your Slack channel. Choose your channel permissions carefully!</p>
+          </dd>
+
+          <dt>Can I send the comments to <a href="https://get.slack.help/hc/en-us/articles/201925108-About-channels-and-direct-messages">a private Slack channel?</a></dt>
+          <dd>
+            <p>Yes.</p>
+          </dd>
+
+          <dt>What if a moderator has already approved/rejected a comment in Talk?</dt>
+          <dd>
+            <p>Whichever is the latest action takes precedence. If a comment is rejected in Talk and then rejected again in Slack, nothing happens.</p>
+          </dd>
+
+          <dt>Do you get access to our comments if we use this?</dt>
+          <dd>
+            <p>No. It flows straight from your Talk instance to your Slack channel. Our Slack app merely confirms that you have approved the connection.</p>
+          </dd>
+
+          <dt>What do I need to do to get started?</dt>
+          <dd>
+            <p>To run this app, you will need admin access to your Slack workspace, command line access to your Talk installation, and access to your Talk plugins.json file. Click the above button to connect, and then follow the instructions to add an installation.</p>
+          </dd>
+
+          <dt>How do I stop it?*
+          <dd>
+            <p>Click on Installations in the top menu, then on the name of the installation you want to pause or remove. Then click on Disable or Delete on the top right of the page.</p>
+          </dd>
+
+          <dt>How much does it cost?</dt>
+          <dd>
+            <p>Like all of our software, the code is free and open source, courtesy of The Coral Project from Mozilla. We’re also hosting this app for free.</p>
+          </dd>
+
+          <dt>Can I set up my own Slack app to do this?</dt>
+          <dd>
+            <p>Yes. The code is here: <a href="https://github.com/coralproject/slack-bouncer">github.com/coralproject/slack-bouncer</a>.</p>
+          </dd>
+
+          <dt>I get the error message <code>OAuth Error: invalid_team_for_non_distributed_app</code></dt>
+          <dd>
+            <p>Check the URL - it might have tried to connect to the wrong workspace. If so, simply change the part of the URL before “slack.com” to the Slack workspace you want to connect.</p>
+          </dd>
+        </dl>
+
+        <p>If you have other questions, <a href="https://coralproject.net/contact.html">let us know.</a></p>
+      </details>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <p class="text-center">
+      <a href="https://www.mozilla.org/">
+        <img src="/static/moz-logo-bw-rgb.svg" width="100" />
+      </a>
+    </p>
+  </div>
+</div>
 
 <% include partials/footer %>
