@@ -55,6 +55,11 @@ const config = convict({
     default: 'http://127.0.0.1:5000/',
   },
   slack: {
+    app_id: {
+      format: '*',
+      env: 'SLACK_APP_ID',
+      default: null,
+    },
     client_id: {
       format: '*',
       env: 'SLACK_CLIENT_ID',

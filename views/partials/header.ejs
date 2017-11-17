@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <% if (typeof csrfToken === 'string') { %><meta name="_csrf" content="<%= csrfToken %>"/><% } %>
+    <% if (typeof csrfToken === 'string' && csrfToken.length > 0) { %><meta name="_csrf" content="<%= csrfToken %>"/><% } %>
+    <% if (typeof slackAppID === 'string' && slackAppID.length > 0) { %><meta name="slack-app-id" content="<%= slackAppID %>"><% } %>
     <title>Coral Project Talk - Slack Bouncer</title>
     <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
     <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" integrity="sha256-3YM6A3pH4QFCl9WbSU8oXF5N6W/2ylvW0o2g+Z6TmLQ=" crossorigin="anonymous" />

@@ -46,6 +46,7 @@ const authz = (req, res, next) => {
 
 const locals = (req, res, next) => {
   res.locals.pluralize = pluralize;
+  res.locals.slackAppID = config.get('slack.app_id');
   next();
 };
 
