@@ -243,34 +243,31 @@ router.post('/interactive', async (req, res, next) => {
       return;
     }
 
-    // Update the message in Slack.
-    const body = await slack.chat.update(
-      user.access_token,
-      channel.id,
-      original_message
-    );
+    try {
+      const { ts: messageID } = await slack.chat.update(
+        user.access_token,
+        channel.id,
+        original_message
+      );
 
-    if (!body.ok) {
+      logger.info('slack message updated', {
+        comment_id: commentID,
+        installation_id: installationID,
+        message_id: messageID,
+      });
+    } catch (err) {
       logger.error('could not update slack', {
         comment_id: commentID,
         installation_id: installationID,
-        error: body.error,
+        error: err.message,
       });
-      return;
     }
-
-    logger.info('slack message updated', {
-      comment_id: commentID,
-      installation_id: installationID,
-      message_id: body.ts,
-    });
   } catch (err) {
     logger.error('could not process the slack message', {
       comment_id: commentID,
       installation_id: installationID,
       error: err.message,
     });
-    return;
   }
 });
 

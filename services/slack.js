@@ -6,48 +6,43 @@ const sortBy = require('lodash/sortBy');
 const { URL } = require('url');
 const querystring = require('querystring');
 
+async function request(method, requestBody) {
+  const res = await fetch(`https://slack.com/api/${method}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: querystring.stringify(requestBody),
+  });
+
+  const responseBody = res.json();
+
+  // All Slack responses come with an `ok` param, check to see if the request
+  // was ok!
+  if (!responseBody.ok) {
+    throw new Error(responseBody.error);
+  }
+
+  return responseBody;
+}
+
 async function listChannels(token) {
-  let res = await fetch('https://slack.com/api/channels.list', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: querystring.stringify({
+  const [{ channels }, { groups }] = await Promise.all([
+    request('channels.list', {
       token,
       exclude_archived: true,
       exclude_members: true,
     }),
-  });
-
-  let body = await res.json();
-
-  if (!body.ok) {
-    throw new Error(body.error);
-  }
-
-  const { channels } = body;
-
-  res = await fetch('https://slack.com/api/groups.list', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: querystring.stringify({
+    request('groups.list', {
       token,
       exclude_archived: true,
       exclude_members: true,
     }),
-  });
+  ]);
 
-  body = await res.json();
-
-  if (!body.ok) {
-    throw new Error(body.error);
-  }
-
-  const { groups } = body;
-
+  // Sort the channels alphabetically.
   return sortBy(
+    // Join the lists, but remove the person to person channels.
     concat(channels, groups.filter(({ name }) => !name.startsWith('mpdm'))),
     'name'
   );
@@ -58,20 +53,12 @@ async function chat(token, channel_id, message, type) {
     message.attachments = JSON.stringify(message.attachments);
   }
 
-  const body = merge(message, {
+  const requestBody = merge(message, {
     token,
     channel: channel_id,
   });
 
-  const res = await fetch(`https://slack.com/api/chat.${type}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: querystring.stringify(body),
-  });
-
-  return res.json();
+  return request(`chat.${type}`, requestBody);
 }
 
 async function chatPostMessage(token, channel_id, message) {

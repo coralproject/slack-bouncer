@@ -48,7 +48,7 @@ router.put('/:id', async (req, res, next) => {
   }
 
   try {
-    await req.installation.update({ $set: update });
+    await req.installation.update({ $set: update }, { runValidators: true });
     res.status(204).end();
   } catch (err) {
     return next(err);

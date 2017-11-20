@@ -54,7 +54,11 @@ router.get('/authorize/callback', async (req, res, next) => {
 
   // Now we have authenticated with slack! Save some details.
   try {
-    await User.update({ id: req.user.id }, { access_token: body.access_token });
+    await User.update(
+      { id: req.user.id },
+      { access_token: body.access_token },
+      { runValidators: true }
+    );
 
     // Save the access token to this session.
     req.session.access_token = body.access_token;

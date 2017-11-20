@@ -40,7 +40,7 @@ router.put('/:id', async (req, res, next) => {
   }
 
   try {
-    await req.configuration.update({ $set: update });
+    await req.configuration.update({ $set: update }, { runValidators: true });
     res.status(204).end();
   } catch (err) {
     return next(err);
