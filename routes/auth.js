@@ -73,7 +73,11 @@ router.get('/callback', async (req, res, next) => {
       const { invite: teamInvite } = req.session;
       // This is a new team, check to see if this session has an invite on it.
       if (!teamInvite) {
-        return next(new Error('Invalid invite'));
+        req.flash(
+          'danger',
+          "Your team was not invited to join, please contact this installation's administrators"
+        );
+        return res.redirect('/');
       }
 
       try {
