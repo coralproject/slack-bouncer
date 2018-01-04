@@ -5,6 +5,9 @@ const program = require('commander');
 const invite = require('./invite');
 const redis = require('./redis');
 const Table = require('cli-table');
+const web = require('./web');
+const pubsub = require('./pubsub');
+const logger = require('./logger');
 const { db, Configuration, Installation, Team, User } = require('./models');
 
 // Set the package version.
@@ -13,8 +16,30 @@ program.version(pkg.version);
 program
   .command('serve')
   .description('starts the application server')
-  .action(async () => {
-    require('./index');
+  .option(
+    '-w, --web_only',
+    'only starts the web server, does not start the pubsub subscriber'
+  )
+  .option(
+    '-p, --pubsub_only',
+    'only starts the pubsub subscriber, does not start the web server'
+  )
+  .action(options => {
+    if (options.pubsub_only || !options.web_only) {
+      pubsub.subscribe();
+      logger.debug('subscribed to the pubsub topic', {
+        web_only: options.web_only,
+        pubsub_only: options.pubsub_only,
+      });
+    }
+
+    if (options.web_only || !options.pubsub_only) {
+      web.listen();
+      logger.debug('started the web server', {
+        web_only: options.web_only,
+        pubsub_only: options.pubsub_only,
+      });
+    }
   });
 
 program

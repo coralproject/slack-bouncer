@@ -32,7 +32,7 @@
       <strong>This configurations installation is disabled.</strong> It will not forwared messages to the designated slack channel until it is reenabled.
     </div>
   <% } %>
-  <p>This configuration will post new comments from the <a href="/installation/<%= installation.id %>"><%= installation.name %></a> installation to the <b>#<%= configuration.channel %></b> channel.</p>
+  <p>This configuration will post <b><%= configuration.type.toLowerCase() %></b> comments from the <a href="/installation/<%= installation.id %>"><%= installation.name %></a> installation to the <b>#<%= configuration.channel %></b> channel.</p>
 </article>
 
 <% include partials/footer %>

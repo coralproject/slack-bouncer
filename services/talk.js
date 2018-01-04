@@ -50,6 +50,10 @@ async function getComment(installation, handshakeToken, commentID) {
       user {
         username
       }
+      status
+      status_history {
+        type
+      }
       created_at
     }
   }`;

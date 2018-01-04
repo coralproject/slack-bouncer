@@ -39,6 +39,9 @@ router.post('/', async (req, res, next) => {
     Joi.object().keys({
       installation_id: Joi.string().required(),
       channel_id: Joi.string().required(),
+      type: Joi.string()
+        .required()
+        .valid(['NEW', 'REPORTED', 'PREMOD']),
     }),
     {
       stripUnknown: true,
@@ -59,6 +62,7 @@ router.post('/', async (req, res, next) => {
       team_id: req.team.id,
       added_by: req.user,
       installation_id: body.installation_id,
+      type: body.type,
       channel: channel.name,
       channel_id: channel.id,
     });

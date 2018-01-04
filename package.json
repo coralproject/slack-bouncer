@@ -1,7 +1,6 @@
 {
   "name": "@coralproject/slack-bouncer",
   "version": "1.0.0",
-  "main": "index.js",
   "author": "",
   "license": "Apache-2.0",
   "bin": {

@@ -32,12 +32,21 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="channel">Slack Channel</label>
-            <select class="form-control typeahea" name="channel_id" id="channel_id" value="" autocomplete="off">
+            <label for="channel_id">Slack Channel</label>
+            <select class="form-control" name="channel_id" id="channel_id" value="" autocomplete="off">
               <% channels.forEach((channel) => { %>
                 <option value="<%= channel.id %>">#<%= channel.name %></option>
               <% }) %>
             </select>
+          </div>
+          <div class="form-group">
+            <label for="type">Queue Type</label>
+            <select class="form-control" name="type" id="type" value="" autocomplete="off" aria-describedby="typeHelp" >
+              <option value="NEW">All new comments</option>
+              <option value="REPORTED">Only reported comments</option>
+              <option value="PREMOD">Only premod comments</option>
+            </select>
+            <small id="typeHelp" class="form-text text-muted">Filter what kind of comments you want to flow into a channel.</small>
           </div>
         <button type="submit" class="btn btn-secondary">Create</button>
       </form>

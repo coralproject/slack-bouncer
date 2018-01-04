@@ -54,6 +54,11 @@ const ConfigurationSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    type: {
+      type: String,
+      enum: ['NEW', 'REPORTED', 'PREMOD'],
+      default: 'NEW',
+    },
     channel: String,
     channel_id: String,
   },

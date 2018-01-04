@@ -29,10 +29,16 @@ app.use(middleware.notFound);
 app.use(middleware.logging.error);
 app.use(middleware.error);
 
-// Listening.
-app.listen(config.get('port'), config.get('host'), () => {
-  logger.info('Server Listening', {
-    host: config.get('host'),
-    port: config.get('port'),
+/**
+ * listen starts the server on the designated ports.
+ */
+function listen(port = config.get('port'), host = config.get('host')) {
+  app.listen(port, host, () => {
+    logger.info('Server Listening', {
+      host,
+      port,
+    });
   });
-});
+}
+
+module.exports = { listen };

@@ -7,13 +7,6 @@ const uniq = require('lodash/uniq');
 const config = require('./config');
 const slack = require('./services/slack');
 
-// Setup the pubsub publisher.
-const pubsub = PubSub();
-const topic = pubsub.topic(config.get('pubsub_topic'));
-const subscription = topic.subscription(
-  config.get('pubsub_topic_subscription')
-);
-
 /**
  * onError receives errors emitted by the subscription.
  *
@@ -147,6 +140,53 @@ async function sendInteractiveMessage(
 //   // TODO
 // }
 
+async function getConfigurations(installID, comment, source) {
+  // Compose the configuration query.
+  const query = Configuration.find({
+    installation_id: installID,
+    disabled: false,
+  });
+
+  switch (source) {
+    // A new comment will be added to all new queues. If the comment has a
+    // status of PREMOD, it will also go to the premod queues. If a comment has
+    // a status of SYSTEM_WITHHELD, then it will go to the reported queue
+    // directly.
+    case 'comment': {
+      const types = ['NEW'];
+
+      if (comment.status === 'PREMOD') {
+        types.push('PREMOD');
+      } else if (comment.status === 'SYSTEM_WITHHELD') {
+        types.push('REPORTED');
+      }
+
+      return query.merge({
+        type: {
+          $in: types,
+        },
+      });
+    }
+    case 'flag': {
+      // Flag messages are only relevant for reported queues, this represents
+      // a comment that was flagged for the first time. We'll also check that
+      // the comment has a status that makes sense.
+      if (comment.status === 'NONE') {
+        return query.merge({
+          type: 'REPORTED',
+        });
+      }
+
+      // A flag came it, but the comment should have already entered a queue or
+      // was moderated already, so return no valid configurations.
+      return [];
+    }
+    default:
+      // An unsupported source was passed, we don't know what to pull!
+      throw new Error(`invalid source '${source}'`);
+  }
+}
+
 /**
  * onMessage will receive the pubsub messages as they are retrieved from the
  * subscription.
@@ -157,17 +197,17 @@ async function onMessage(message) {
   logger.debug('got pubsub message', { message_id: message.id });
 
   // Use and process the message.
-  let comment, installID, handshakeToken;
+  let data, installID, handshakeToken;
   try {
     // Try and parse the message data.
-    const data = JSON.parse(message.data.toString());
+    const payload = JSON.parse(message.data.toString());
 
     logger.debug('parsed pubsub message', { message_id: message.id });
 
     // Associate the message data with what we know is inside.
-    comment = data.comment;
-    installID = data.install_id;
-    handshakeToken = data.handshake_token;
+    data = payload.data;
+    installID = payload.install_id;
+    handshakeToken = payload.handshake_token;
   } catch (err) {
     logger.error('could not process the pubsub message', {
       message_id: message.id,
@@ -179,7 +219,7 @@ async function onMessage(message) {
 
   logger.info('extracted payload', {
     message_id: message.id,
-    comment_id: comment.id,
+    comment_id: data.id,
     installation_id: installID,
     handshake_token: handshakeToken ? true : false,
   });
@@ -233,12 +273,37 @@ async function onMessage(message) {
       message.ack();
       return;
     }
-
-    // Load the configurations for the given installation.
-    configurations = await Configuration.find({
-      installation_id: installID,
-      disabled: false,
+  } catch (err) {
+    logger.error('an error occurred trying to load from the database', {
+      message_id: message.id,
+      err: err.message,
     });
+    message.ack();
+    return;
+  }
+
+  let comment;
+  try {
+    comment = await Talk.comment.get(installation, handshakeToken, data.id);
+    logger.debug('got the comment from the graph', {
+      message_id: message.id,
+    });
+  } catch (err) {
+    logger.error(
+      'an error occurred trying to query for the comment on the installation graph',
+      {
+        message_id: message.id,
+        comment_id: data.id,
+        installation_id: installID,
+        err: err.message,
+      }
+    );
+    message.ack();
+    return;
+  }
+
+  try {
+    configurations = await getConfigurations(installID, comment, data.source);
     if (!configurations || configurations.length === 0) {
       logger.debug('no configurations to send the message to', {
         message_id: message.id,
@@ -269,26 +334,6 @@ async function onMessage(message) {
     message.ack();
     return;
   }
-
-  try {
-    comment = await Talk.comment.get(installation, handshakeToken, comment.id);
-  } catch (err) {
-    logger.error(
-      'an error occurred trying to query for the comment on the installation graph',
-      {
-        message_id: message.id,
-        comment_id: comment.id,
-        installation_id: installID,
-        err: err.message,
-      }
-    );
-    message.ack();
-    return;
-  }
-
-  logger.debug('got the comment from the graph', {
-    message_id: message.id,
-  });
 
   try {
     // Send interactive messages to each slack configuration.
@@ -343,5 +388,19 @@ async function onMessage(message) {
   message.ack();
 }
 
-subscription.on('error', onError);
-subscription.on('message', onMessage);
+/**
+ * subscribe will create the pubsub provider, and connect all the handlers.
+ */
+function subscribe() {
+  // Setup the pubsub publisher.
+  const pubsub = PubSub();
+  const topic = pubsub.topic(config.get('pubsub_topic'));
+  const subscription = topic.subscription(
+    config.get('pubsub_topic_subscription')
+  );
+
+  subscription.on('error', onError);
+  subscription.on('message', onMessage);
+}
+
+module.exports = { subscribe };

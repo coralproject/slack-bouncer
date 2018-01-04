@@ -15,7 +15,7 @@ async function request(method, requestBody) {
     body: querystring.stringify(requestBody),
   });
 
-  const responseBody = res.json();
+  const responseBody = await res.json();
 
   // All Slack responses come with an `ok` param, check to see if the request
   // was ok!
