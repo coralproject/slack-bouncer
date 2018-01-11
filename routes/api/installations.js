@@ -32,13 +32,13 @@ router.post('/test', middleware.authz, async (req, res, next) => {
   const { access_token, handshake_token, root_url } = body;
 
   try {
-    const version = await Talk.plugin.test(
+    const { client_version } = await Talk.plugin.test(
       root_url,
       handshake_token,
       access_token
     );
     logger.debug('installation validation semver passed', {
-      client_version: version,
+      client_version: client_version,
       client_semver: config.get('client_semver'),
     });
     return res.status(204).end();

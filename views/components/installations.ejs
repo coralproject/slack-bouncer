@@ -3,7 +3,7 @@
     <% installations.forEach((installation) => { %>
       <a href="/installation/<%= installation.id %>" class="list-group-item list-group-item-action flex-column align-items-start">
         <b class="mb-1"><%= installation.name %></b>
-        <small class="mb-1 d-block"><%= installation.root_url %></small>
+        <small class="mb-1 d-block">Talk <%= installation.talk_version %> - <%= installation.root_url %></small>
         <small>Added by <i><%= installation.added_by.name %></i> on <i><%= installation.created_at.toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'}) %></i></small>
       </a>
     <% }) %>

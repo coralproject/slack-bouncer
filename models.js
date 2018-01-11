@@ -101,6 +101,10 @@ const Installation = mongoose.model(
         type: String,
         required: true,
       },
+      talk_version: {
+        type: String,
+        required: true,
+      },
       added_by: Object,
     },
     {

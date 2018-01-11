@@ -6,6 +6,7 @@ const uuid = require('uuid');
 const jwt = require('jsonwebtoken');
 const { URL } = require('url');
 const config = require('../config');
+const Talk = require('../services/talk');
 const { Configuration, Installation } = require('../models');
 const router = express.Router();
 
@@ -58,6 +59,13 @@ router.post('/', async (req, res, next) => {
   }
 
   try {
+    // Determine the version of Talk by testing the application again.
+    const { talk_version } = await Talk.plugin.test(
+      root_url,
+      handshake_token,
+      access_token
+    );
+
     // Encrypt the access token with the handshake token.
     const ciphertext = CryptoJS.AES.encrypt(access_token, handshake_token);
 
@@ -68,6 +76,7 @@ router.post('/', async (req, res, next) => {
       added_by: req.user,
       team_id: req.team.id,
       access_token: ciphertext.toString(),
+      talk_version,
     });
 
     // Save/create the new installation.

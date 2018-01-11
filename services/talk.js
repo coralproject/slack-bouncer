@@ -7,6 +7,18 @@ const semver = require('semver');
 const { URL } = require('url');
 
 /**
+ * getAccessToken will retrieve the access token for the given installation.
+ *
+ * @param {Object} installation the installation that this client is paired to
+ * @param {String} handshakeToken the handshake token sent on the request
+ */
+function getAccessToken(installation, handshakeToken) {
+  return CryptoJS.AES
+    .decrypt(installation.access_token, handshakeToken)
+    .toString(CryptoJS.enc.Utf8);
+}
+
+/**
  * getGraphQLClient will retrieve the GraphQL Client for the given installation.
  *
  * @param {Object} installation the installation that this client is paired to
@@ -14,9 +26,7 @@ const { URL } = require('url');
  */
 function getGraphQLClient(installation, handshakeToken) {
   // Decrypt the access token.
-  const accessToken = CryptoJS.AES
-    .decrypt(installation.access_token, handshakeToken)
-    .toString(CryptoJS.enc.Utf8);
+  const accessToken = getAccessToken(installation, handshakeToken);
 
   // Create the GraphQL client.
   return new GraphQLClient(installation.root_url + 'api/v1/graph/ql', {
@@ -67,6 +77,41 @@ async function getComment(installation, handshakeToken, commentID) {
   }
 
   return comment;
+}
+
+/**
+ *
+ * @param {Object} installation installation where we are using as the translation
+ * @param {String} handshakeToken the installation's handshake token used to get the access token
+ * @param {String} key the translation key
+ * @param {Array<String>} replacements the replacements to use for the translation
+ */
+async function translate(installation, handshakeToken, key, ...replacements) {
+  // Decrypt the access token.
+  const accessToken = getAccessToken(installation, handshakeToken);
+
+  // Test the url by sending a challenge to it for which we expect to see the
+  // same response back indicating an active installation.
+  const res = await fetch(
+    installation.root_url + 'api/slack-bouncer/translate',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        key,
+        replacements,
+      }),
+    }
+  );
+
+  if (!res.ok || res.status !== 200) {
+    throw new Error('non 200 response from foreign api');
+  }
+
+  return res.text();
 }
 
 async function setCommentStatus(
@@ -134,36 +179,55 @@ async function banUser(installation, handshakeToken, commentID) {
   let query = `query getComment($comment_id: ID!) {
     comment(id: $comment_id) {
       user {
-        id
+        userID: id
+        username
       }
     }
   }`;
 
   // Get the comment from the graph.
   const { comment } = await graphQLClient.request(query, variables);
-
   if (comment === null) {
     throw new Error('comment was null');
   }
 
   // Pull the user out of the response.
-  const userID = comment.user.id;
+  const { userID, username } = comment.user;
 
   // Ban that user.
   variables = { user_id: userID };
-  query = `mutation banUser($user_id: ID!) {
-    setUserStatus(id: $user_id, status: BANNED) {
-      errors {
-        translation_key
-      }
-    }
-  }`;
 
-  const { setUserStatus } = await graphQLClient.request(query, variables);
+  if (semver.satisfies(installation.talk_version, '3.x')) {
+    // We rename this field to `banUser` to keep consistent with the new api's.
+    query = `mutation banUser($user_id: ID!) {
+      banUser: setUserStatus(id: $user_id, status: BANNED) {
+        errors {
+          translation_key
+        }
+      }
+    }`;
+  } else if (semver.satisfies(installation.talk_version, '4.x')) {
+    // Get the translated message used for the new graph edge.
+    variables.message = await translate(
+      installation,
+      handshakeToken,
+      'bandialog.email_message_ban',
+      username
+    );
+    query = `mutation banUser($user_id: ID!, $message: String!) {
+      banUser(input: {id: $user_id, message: $message}) {
+        errors {
+          translation_key
+        }
+      }
+    }`;
+  }
+
+  const { banUser } = await graphQLClient.request(query, variables);
 
   // If no comment was returned by the graph, then reject this now.
-  if (setUserStatus !== null) {
-    throw new Error(`user mutation failed, ${JSON.stringify(setUserStatus)}`);
+  if (banUser !== null) {
+    throw new Error(`user mutation failed, ${JSON.stringify(banUser)}`);
   }
 }
 
@@ -216,7 +280,7 @@ async function testPlugin(rootURL, handshakeToken, accessToken) {
     throw new Error('client semver does not match requirements');
   }
 
-  return body.client_version;
+  return body;
 }
 
 module.exports = {
