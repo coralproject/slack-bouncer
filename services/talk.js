@@ -13,9 +13,10 @@ const { URL } = require('url');
  * @param {String} handshakeToken the handshake token sent on the request
  */
 function getAccessToken(installation, handshakeToken) {
-  return CryptoJS.AES
-    .decrypt(installation.access_token, handshakeToken)
-    .toString(CryptoJS.enc.Utf8);
+  return CryptoJS.AES.decrypt(
+    installation.access_token,
+    handshakeToken
+  ).toString(CryptoJS.enc.Utf8);
 }
 
 /**

@@ -153,7 +153,9 @@ router.post('/interactive', async (req, res, next) => {
                 // Update the slack messaging.
                 original_message.attachments.push({
                   mrkdwn_in: ['text'],
-                  text: `*:white_check_mark: <@${slack_user.id}> approved this comment*`,
+                  text: `*:white_check_mark: <@${
+                    slack_user.id
+                  }> approved this comment*`,
                 });
                 break;
               }
@@ -168,7 +170,9 @@ router.post('/interactive', async (req, res, next) => {
                 // Update the slack messaging.
                 original_message.attachments.push({
                   mrkdwn_in: ['text'],
-                  text: `*:no_entry_sign: <@${slack_user.id}> rejected this comment*`,
+                  text: `*:no_entry_sign: <@${
+                    slack_user.id
+                  }> rejected this comment*`,
                 });
                 break;
               }
@@ -205,11 +209,15 @@ router.post('/interactive', async (req, res, next) => {
                 // Update the slack messaging.
                 original_message.attachments.push({
                   mrkdwn_in: ['text'],
-                  text: `*:no_entry_sign: <@${slack_user.id}> banned this user*`,
+                  text: `*:no_entry_sign: <@${
+                    slack_user.id
+                  }> banned this user*`,
                 });
                 original_message.attachments.push({
                   mrkdwn_in: ['text'],
-                  text: `*:no_entry_sign: <@${slack_user.id}> rejected this comment*`,
+                  text: `*:no_entry_sign: <@${
+                    slack_user.id
+                  }> rejected this comment*`,
                 });
                 break;
               }

@@ -88,8 +88,9 @@ async function sendInteractiveMessage(
               style: 'danger',
               value: 'ban',
               confirm: {
-                title: `Are you sure you would like to ban ${comment.user
-                  .username}?`,
+                title: `Are you sure you would like to ban ${
+                  comment.user.username
+                }?`,
                 text:
                   'Banning this user will also place this comment in the Rejected queue.',
                 ok_text: 'Yes',

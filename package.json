@@ -17,11 +17,9 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
+    "@coralproject/eslint-config-talk": "^0.1.0",
     "eslint": "^4.8.0",
-    "eslint-config-prettier": "^2.6.0",
-    "eslint-plugin-prettier": "^2.3.1",
-    "nodemon": "^1.12.1",
-    "prettier": "^1.7.4"
+    "nodemon": "^1.12.1"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^0.14.5",
