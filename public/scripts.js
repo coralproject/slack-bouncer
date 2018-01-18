@@ -10,45 +10,50 @@ $(document).ready(function() {
     });
   }
 
-  var $add_installation_form = $("#add_installation");
-  if ($add_installation_form && $add_installation_form.length > 0) {
-    var xhr;
-    var verified = false;
-    $add_installation_form.on("submit", function(e) {
-      if (verified) {
-        return;
-      } else {
-        e.preventDefault();
-      }
-
-      if (xhr && xhr.readyState != 4) {
-        xhr.abort();
-      }
-
-      $("#verification_status").text("Testing configuration...");
-      $add_installation_form.find("button").prop("disabled", true);
-      xhr = $.ajax({
-        method: "POST",
-        url: "/api/installations/test",
-        data: $add_installation_form.serializeArray(),
-        error: function(jqXHR, textStatus, err) {
-          console.error(jqXHR, textStatus, err);
-          $("#verification_status").text("Verification failed. Ensure you followed instructions above, the config is correct, and your Talk installation is valid.");
-          $add_installation_form.find("button").prop("disabled", false);
-        },
-        success: function() {
-          verified = true;
-          $("#verification_status").text("Verification was successful! Click again to create the installation.");
-          $add_installation_form.find("button").prop("disabled", false).text("Complete Installation").toggleClass("btn-secondary btn-success");
-          $add_installation_form.one("change", function() {
-            verified = false;
-            $("#verification_status").text("Configuration was changed since the last test. Click again to test the new configuration.");
-            $add_installation_form.find("button").text("Test Configuration").toggleClass("btn-secondary btn-success");
-          });
+  function setupInstallationTestForm(form, successText, verb) {
+    if (form && form.length > 0) {
+      var xhr;
+      var verified = false;
+      form.on("submit", function(e) {
+        if (verified) {
+          return;
+        } else {
+          e.preventDefault();
         }
+
+        if (xhr && xhr.readyState != 4) {
+          xhr.abort();
+        }
+
+        $("#verification_status").text("Testing configuration...");
+        form.find("button").prop("disabled", true);
+        xhr = $.ajax({
+          method: "POST",
+          url: "/api/installations/test",
+          data: form.serializeArray(),
+          error: function(jqXHR, textStatus, err) {
+            console.error(jqXHR, textStatus, err);
+            $("#verification_status").text("Verification failed. Ensure you followed instructions above, the config is correct, and your Talk installation is valid.");
+            form.find("button").prop("disabled", false);
+          },
+          success: function() {
+            verified = true;
+            $("#verification_status").text("Verification was successful! Click again to " + verb + " the installation.");
+            form.find("button").prop("disabled", false).text(successText).toggleClass("btn-secondary btn-success");
+            form.one("change", function() {
+              verified = false;
+              $("#verification_status").text("Configuration was changed since the last test. Click again to test the configuration.");
+              form.find("button").text("Test Configuration").toggleClass("btn-secondary btn-success");
+            });
+          }
+        });
       });
-    });
+    }
   }
+
+  setupInstallationTestForm($("#add_installation"), 'Complete Installation', 'create');
+  setupInstallationTestForm($("#edit_installation"), 'Update Installation', 'update');
+
 
   var $edit_installation_buttons = $("#edit_installation_buttons");
   if ($edit_installation_buttons && $edit_installation_buttons.length > 0) {

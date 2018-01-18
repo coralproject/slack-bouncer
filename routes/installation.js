@@ -8,6 +8,7 @@ const { URL } = require('url');
 const config = require('../config');
 const Talk = require('../services/talk');
 const { Configuration, Installation } = require('../models');
+const logger = require('../logger');
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
@@ -142,6 +143,89 @@ router.get('/:id', async (req, res, next) => {
 
     return res.render('edit_installation', {
       installation_token,
+      csrfToken: req.csrfToken(),
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * This endpoint will update an existing installation.
+ */
+router.post('/:id', async (req, res, next) => {
+  const { value: body, error: err } = Joi.validate(
+    req.body,
+    Joi.object()
+      .keys({
+        name: Joi.string().required(),
+        access_token: Joi.string().default(null),
+        handshake_token: Joi.string().required(),
+        root_url: Joi.string().required(),
+      })
+      .optionalKeys(['access_token']),
+    {
+      stripUnknown: true,
+      convert: false,
+      presence: 'required',
+    }
+  );
+  if (err) {
+    logger.error('installation validation failed', {
+      err: 'payload invalid',
+    });
+    return res.status(400).end();
+  }
+
+  const { name, handshake_token, root_url } = body;
+  let { access_token } = body;
+
+  // Craft the graph endpoint for Talk.
+  const uri = new URL(root_url);
+
+  // Verify a trailing slash.
+  if (
+    uri.pathname.length === 0 ||
+    uri.pathname[uri.pathname.length - 1] !== '/'
+  ) {
+    uri.pathname += '/';
+  }
+
+  try {
+    if (access_token === null) {
+      // Decrypt the access token from the installation.
+      access_token = CryptoJS.AES.decrypt(
+        req.installation.access_token,
+        handshake_token
+      ).toString(CryptoJS.enc.Utf8);
+    }
+
+    // Determine the version of Talk by testing the application again.
+    const { talk_version } = await Talk.plugin.test(
+      root_url,
+      handshake_token,
+      access_token
+    );
+
+    // Encrypt the access token with the handshake token.
+    const ciphertext = CryptoJS.AES.encrypt(access_token, handshake_token);
+
+    // Update the installation.
+    await req.installation.update({
+      $set: {
+        name,
+        root_url: uri.toString(),
+        access_token: ciphertext.toString(),
+        talk_version,
+      },
+    });
+
+    // Get the updated installation.
+    req.installation = await Installation.findOne({ id: req.installation.id });
+    res.locals.installation = req.installation.toObject();
+
+    return res.render('edit_installation', {
+      installation_token: null,
       csrfToken: req.csrfToken(),
     });
   } catch (err) {

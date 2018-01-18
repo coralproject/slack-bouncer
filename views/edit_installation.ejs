@@ -1,9 +1,5 @@
 <% include partials/header %>
 
-<div class="alert alert-warning" role="alert">
-  <b>Note:</b> Currently you cannot update an installation, you must delete it and create a new one.
-</div>
-
 <ol class="breadcrumb">
   <li class="breadcrumb-item"><a href="/">Home</a></li>
   <li class="breadcrumb-item"><a href="/installations">Installations</a></li>
@@ -39,18 +35,34 @@
       <strong>This installation is disabled.</strong> It will not forwared messages to the linked configurations or process moderation actions from Slack until reenabled.
     </div>
   <% } %>
-
-  <h3>Summary</h3>
-  <dl>
-    <dt>Name</dt>
-    <dd><%= installation.name %></dd>
-    <dt>Root URL</dt>
-    <dd><%= installation.root_url %></dd>
-    <dt>Version</dt>
-    <dd><%= installation.talk_version %></dd>
-    <dt>Access Token</dt>
-    <dd><i>encrypted</i></dd>
-  </dl>
+  <form class="mb-5" method="post" id="edit_installation">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <input type="hidden" name="id" value="<%= installation.id %>">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" name="name" value="<%= installation.name %>" required>
+    </div>
+    <div class="form-group">
+      <label for="root_url">Root URL</label>
+      <input type="text" class="form-control" name="root_url" value="<%= installation.root_url %>" required>
+    </div>
+    <div class="form-group">
+      <label for="access_token">Access Token</label>
+      <input type="password" class="form-control" id="access_token" placeholder="encrypted">
+    </div>
+    <div class="form-group">
+      <label for="version">Version</label>
+      <input type="text" class="form-control" id="version" disabled placeholder="<%= installation.talk_version %>" aria-describedby="versionHelp">
+      <small id="versionHelp" class="form-text text-muted">To update the version, simply click update below and we'll re-read the version details from your installation.</small>
+    </div>
+    <div class="form-group">
+      <label for="handshake_token">Confirm Handshake Token</label>
+      <input type="password" class="form-control" name="handshake_token" placeholder="" aria-describedby="handshakeTokenHelp" required>
+      <small id="handshakeTokenHelp" class="form-text text-muted">We need the handshake token to validate that you have administrative access to your installation <i>(and to potentially re-encrypt the access token)</i>.</small>
+    </div>
+    <button type="submit" class="btn btn-secondary">Test Configuration</button>
+    <small id="verification_status"></small>
+  </form>
 
   <h3>Linked Configurations</h3>
   <p>You currently have <%= configurations.length %> linked <%= pluralize('configuration', configurations.length) %>.</p>
