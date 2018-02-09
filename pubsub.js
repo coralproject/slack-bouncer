@@ -392,9 +392,9 @@ async function onMessage(message) {
 /**
  * subscribe will create the pubsub provider, and connect all the handlers.
  */
-function subscribe() {
+async function subscribe() {
   // Setup the pubsub publisher.
-  const pubsub = PubSub();
+  const pubsub = new PubSub();
   const topic = pubsub.topic(config.get('pubsub_topic'));
   const subscription = topic.subscription(
     config.get('pubsub_topic_subscription')

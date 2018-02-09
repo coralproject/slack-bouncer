@@ -25,20 +25,25 @@ program
     'only starts the pubsub subscriber, does not start the web server'
   )
   .action(options => {
-    if (options.pubsub_only || !options.web_only) {
-      pubsub.subscribe();
-      logger.debug('subscribed to the pubsub topic', {
-        web_only: options.web_only,
-        pubsub_only: options.pubsub_only,
-      });
-    }
+    try {
+      if (options.pubsub_only || !options.web_only) {
+        pubsub.subscribe();
+        logger.debug('subscribed to the pubsub topic', {
+          web_only: options.web_only,
+          pubsub_only: options.pubsub_only,
+        });
+      }
 
-    if (options.web_only || !options.pubsub_only) {
-      web.listen();
-      logger.debug('started the web server', {
-        web_only: options.web_only,
-        pubsub_only: options.pubsub_only,
-      });
+      if (options.web_only || !options.pubsub_only) {
+        web.listen();
+        logger.debug('started the web server', {
+          web_only: options.web_only,
+          pubsub_only: options.pubsub_only,
+        });
+      }
+    } catch (err) {
+      logger.error('error during server start', { err: err.message });
+      process.exit(1);
     }
   });
 
