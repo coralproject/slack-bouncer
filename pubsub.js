@@ -238,7 +238,7 @@ async function handlePubSubMessage(message) {
     installID = payload.install_id;
     handshakeToken = payload.handshake_token;
   } catch (err) {
-    logger.error('could not process the pubsub message', {
+    logger.error('could not process the PubSub message', {
       message_id: message.id,
       err: err.message,
     });
@@ -256,7 +256,7 @@ async function handlePubSubMessage(message) {
   try {
     installation = await Installation.findOne({ id: installID });
     if (!installation) {
-      logger.error('could not process the pubsub message', {
+      logger.error('could not process the PubSub message', {
         message_id: message.id,
         installation_id: installID,
         err: 'could not find installation',
@@ -282,7 +282,7 @@ async function handlePubSubMessage(message) {
     // Get the team.
     const team = await Team.findOne({ id: installation.team_id });
     if (!team) {
-      logger.error('could not process the pubsub message', {
+      logger.error('could not process the PubSub message', {
         message_id: message.id,
         installation_id: installID,
         team_id: installation.team_id,
@@ -408,10 +408,10 @@ async function handlePubSubMessage(message) {
 }
 
 /**
- * subscribe will create the pubsub provider, and connect all the handlers.
+ * subscribe will create the PubSub provider, and connect all the handlers.
  */
 async function subscribe() {
-  // Setup the pubsub publisher.
+  // Setup the PubSub publisher.
   const pubsub = new PubSub();
   const topic = pubsub.topic(config.get('pubsub_topic'));
   const subscription = topic.subscription(
