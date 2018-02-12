@@ -20,6 +20,7 @@ Built with <3 by The Coral Project & Mozilla.
 - Google Cloud Platform
   - Google Cloud Functions (for ingesting comments)
   - Google Cloud Pub/Sub (for buffering the ingested comments)
+  - Google Cloud Stackdriver Error Reporting (for error reporting)
 
 ## Configuration
 

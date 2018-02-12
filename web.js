@@ -18,6 +18,13 @@ app.set('trust proxy', 1);
 // Application wide middleware.
 app.use(middleware.logging.log);
 app.use(helmet());
+
+// Handle calls to the robots.txt.
+app.get('/robots.txt', function(req, res) {
+  res.type('text/plain');
+  res.send('User-agent: *\nDisallow: /');
+});
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/static', express.static(path.join(__dirname, 'public')));
