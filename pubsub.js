@@ -6,6 +6,7 @@ const logger = require('./logger');
 const uniq = require('lodash/uniq');
 const config = require('./config');
 const slack = require('./services/slack');
+const reporting = require('./reporting');
 
 /**
  * onError receives errors emitted by the subscription.
@@ -14,7 +15,9 @@ const slack = require('./services/slack');
  *                     stream.
  */
 function onError(err) {
-  logger.error('error during pubsub processing', { err: err.message });
+  reporting.report(err, () => {
+    logger.error('error during PubSub processing', { err: err.message });
+  });
 }
 
 /**

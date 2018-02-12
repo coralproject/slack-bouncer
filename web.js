@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const routes = require('./routes');
 const helmet = require('helmet');
+const reporting = require('./reporting');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use(middleware.locals);
 app.use(routes);
 app.use(middleware.notFound);
 app.use(middleware.logging.error);
+app.use(reporting.express);
 app.use(middleware.error);
 
 /**

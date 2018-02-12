@@ -103,6 +103,15 @@
     string-format-obj "^1.1.0"
     through2 "^2.0.3"
 
+"@google-cloud/error-reporting@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@google-cloud/error-reporting/-/error-reporting-0.2.2.tgz#64701a12ebce9e0ad51f8eafcbb651f323a7e862"
+  dependencies:
+    "@google-cloud/common" "^0.13.0"
+    extend "^3.0.0"
+    is "^3.2.0"
+    lodash.has "^4.5.2"
+
 "@google-cloud/pubsub@^0.14.5":
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/@google-cloud/pubsub/-/pubsub-0.14.8.tgz#f490a722cd2e9498cc8d72cd7dc7a46ba0061563"
@@ -2403,6 +2412,10 @@ lodash.flatten@^4.4.0:
 lodash.foreach@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.foreach/-/lodash.foreach-4.5.0.tgz#1a6a35eace401280c7f06dddec35165ab27e3e53"
+
+lodash.has@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/lodash.has/-/lodash.has-4.5.2.tgz#d19f4dc1095058cccbe2b0cdf4ee0fe4aa37c862"
 
 lodash.includes@^4.3.0:
   version "4.3.0"
