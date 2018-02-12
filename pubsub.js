@@ -192,13 +192,38 @@ async function getConfigurations(installID, comment, source) {
 }
 
 /**
- * onMessage will receive the pubsub messages as they are retrieved from the
+ * onMessage will receive the PubSub messages as they are retrieved from the
  * subscription.
  *
  * @param {Object} message The PubSub message from Google Cloud.
  */
 async function onMessage(message) {
-  logger.debug('got pubsub message', { message_id: message.id });
+  try {
+    // Pass the message on to get handled.
+    await handlePubSubMessage(message);
+
+    // Report that we got the message.
+    message.ack();
+  } catch (err) {
+    logger.error('could not process the PubSub message', {
+      message_id: message.id,
+      err: err.message,
+    });
+
+    // Report that the message was not received/handled and should be
+    // redelivered.
+    message.nack();
+  }
+}
+
+/**
+ * handlePubSubMessage will receive the PubSub messages as they are retrieved
+ * from the subscription. Acking the message will be done higher than this.
+ *
+ * @param {Object} message The PubSub message from Google Cloud.
+ */
+async function handlePubSubMessage(message) {
+  logger.debug('got PubSub message', { message_id: message.id });
 
   // Use and process the message.
   let data, installID, handshakeToken;
@@ -206,7 +231,7 @@ async function onMessage(message) {
     // Try and parse the message data.
     const payload = JSON.parse(message.data.toString());
 
-    logger.debug('parsed pubsub message', { message_id: message.id });
+    logger.debug('parsed PubSub message', { message_id: message.id });
 
     // Associate the message data with what we know is inside.
     data = payload.data;
@@ -217,7 +242,6 @@ async function onMessage(message) {
       message_id: message.id,
       err: err.message,
     });
-    message.ack();
     return;
   }
 
@@ -282,7 +306,6 @@ async function onMessage(message) {
       message_id: message.id,
       err: err.message,
     });
-    message.ack();
     return;
   }
 
@@ -302,7 +325,6 @@ async function onMessage(message) {
         err: err.message,
       }
     );
-    message.ack();
     return;
   }
 
@@ -335,7 +357,6 @@ async function onMessage(message) {
       message_id: message.id,
       err: err.message,
     });
-    message.ack();
     return;
   }
 
@@ -357,7 +378,6 @@ async function onMessage(message) {
       message_id: message.id,
       err: err.message,
     });
-    message.ack();
     return;
   }
 
@@ -369,7 +389,6 @@ async function onMessage(message) {
   //     message_id: message.id,
   //     err: err.message,
   //   });
-  //   message.ack();
   //   return;
   // }
 
@@ -380,16 +399,12 @@ async function onMessage(message) {
   //     message_id: message.id,
   //     err: err.message,
   //   });
-  //   message.ack();
   //   return;
   // }
 
   logger.debug('successfully processed the message', {
     message_id: message.id,
   });
-
-  // Ack the message because we processed it.
-  message.ack();
 }
 
 /**
