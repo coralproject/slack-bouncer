@@ -106,7 +106,7 @@ const config = convict({
   enable_metrics: {
     format: Boolean,
     env: 'ENABLE_METRICS',
-    default: true,
+    default: false,
   },
 });
 

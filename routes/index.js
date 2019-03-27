@@ -1,5 +1,6 @@
 const express = require('express');
 const csurf = require('csurf');
+const config = require('../config');
 const middleware = require('../middleware');
 const { Configuration, Installation } = require('../models');
 const auth = require('./auth');
@@ -35,8 +36,10 @@ router.use('/auth', auth);
 // Setup the invite route.
 router.use('/invite', invite);
 
-// Setup the metrics route.
-router.use('/metrics', metrics);
+if (config.get('enable_metrics')) {
+  // Setup the metrics route.
+  router.use('/metrics', metrics);
+}
 
 // Attach middleware that'll apply to all following routes.
 router.use(middleware.authz);
