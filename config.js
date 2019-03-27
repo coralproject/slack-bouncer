@@ -103,6 +103,11 @@ const config = convict({
     env: 'CLIENT_SIGNING_TOKEN',
     default: null,
   },
+  enable_metrics: {
+    format: Boolean,
+    env: 'ENABLE_METRICS',
+    default: true,
+  },
 });
 
 config.validate({ allowed: 'strict' });

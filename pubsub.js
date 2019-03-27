@@ -5,6 +5,7 @@ const { Installation, Configuration, Team, User } = require('./models');
 const logger = require('./logger');
 const uniq = require('lodash/uniq');
 const config = require('./config');
+const { metrics: { processedCommentsTotal } } = require('./metrics');
 const slack = require('./services/slack');
 const reporting = require('./reporting');
 
@@ -252,7 +253,7 @@ async function handlePubSubMessage(message) {
     handshake_token: handshakeToken ? true : false,
   });
 
-  let installation, configurations, users;
+  let team, installation, configurations, users;
   try {
     installation = await Installation.findOne({ id: installID });
     if (!installation) {
@@ -280,7 +281,7 @@ async function handlePubSubMessage(message) {
     }
 
     // Get the team.
-    const team = await Team.findOne({ id: installation.team_id });
+    team = await Team.findOne({ id: installation.team_id });
     if (!team) {
       logger.error('could not process the PubSub message', {
         message_id: message.id,
@@ -380,6 +381,9 @@ async function handlePubSubMessage(message) {
     });
     return;
   }
+
+  // Increment the metrics.
+  processedCommentsTotal.labels(team.domain).inc();
 
   // try {
   //   // Push the message id's back to the talk installation.

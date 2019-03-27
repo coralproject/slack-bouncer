@@ -10,7 +10,7 @@ Cloud Platform as we leverage some technology there to keep these systems
 running smooth under high load. We plan in the future to remove this
 requirement.
 
-Built with <3 by The Coral Project & Mozilla.
+Built with <3 by The Coral Project & Vox Media.
 
 ## Requirements
 

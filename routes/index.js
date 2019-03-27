@@ -11,6 +11,7 @@ const configurations = require('./configurations');
 const installation = require('./installation');
 const installations = require('./installations');
 const invite = require('./invite');
+const metrics = require('./metrics');
 
 const router = express.Router();
 
@@ -33,6 +34,9 @@ router.use('/auth', auth);
 
 // Setup the invite route.
 router.use('/invite', invite);
+
+// Setup the metrics route.
+router.use('/metrics', metrics);
 
 // Attach middleware that'll apply to all following routes.
 router.use(middleware.authz);
