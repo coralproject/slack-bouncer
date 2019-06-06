@@ -65,6 +65,10 @@ async function getComment(installation, handshakeToken, commentID) {
       status_history {
         type
       }
+      action_summaries {
+        __typename
+        count
+      }
       created_at
     }
   }`;
