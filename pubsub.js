@@ -164,6 +164,22 @@ async function getConfigurations(installID, comment, source) {
         types.push('PREMOD');
       } else if (comment.status === 'SYSTEM_WITHHELD') {
         types.push('REPORTED');
+      } else if (comment.status === 'NONE') {
+        // This could be a comment that was flagged when created, so we need to
+        // check the action_summaries.
+        if (comment.action_summaries && comment.action_summaries.length > 0) {
+          // There are action summaries, so we need to check to see if there is
+          // at least one flag, if there is, we need to also possibly send this
+          // to the reporting channel.
+          if (
+            comment.action_summaries.some(
+              summary =>
+                summary.__typename === 'FlagActionSummary' && summary.count > 0
+            )
+          ) {
+            types.push('REPORTED');
+          }
+        }
       }
 
       return query.merge({
