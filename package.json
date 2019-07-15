@@ -9,7 +9,7 @@
   "scripts": {
     "start": "./cli.js serve",
     "watch": "nodemon ./cli.js serve",
-    "lint": "eslint ."
+    "test": "eslint ."
   },
   "prettier": {
     "singleQuote": true,
@@ -53,7 +53,7 @@
   "pre-commit": {
     "silent": false,
     "run": [
-      "lint"
+      "test"
     ]
   }
 }
