@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@coralproject/eslint-config-talk": "^0.1.0",
-    "eslint": "^4.8.0",
+    "eslint": "^4.18.2",
     "nodemon": "^1.12.1",
     "pre-commit": "^1.2.2"
   },
