@@ -6,7 +6,8 @@ mongoose.Promise = global.Promise;
 
 const Schema = mongoose.Schema;
 const db = mongoose.connect(config.get('mongo_url'), {
-  useMongoClient: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
 const UserSchema = new Schema(

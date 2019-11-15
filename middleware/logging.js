@@ -23,7 +23,7 @@ const log = (req, res, next) => {
     res.end(chunk, encoding);
 
     // Log this out to winston.
-    logger.info('http request', {
+    logger.debug('http request', {
       url: req.originalUrl || req.url,
       method: req.method,
       statusCode: res.statusCode,

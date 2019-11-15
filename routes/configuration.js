@@ -1,6 +1,6 @@
 const express = require('express');
 const uuid = require('uuid');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const slack = require('../services/slack');
 const { Configuration, Installation } = require('../models');
 const router = express.Router();

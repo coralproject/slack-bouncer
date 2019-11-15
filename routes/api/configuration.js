@@ -1,5 +1,5 @@
 const express = require('express');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const router = express.Router();
 const csurf = require('csurf');
 const { Configuration } = require('../../models');

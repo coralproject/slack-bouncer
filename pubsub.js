@@ -1,4 +1,4 @@
-const PubSub = require('@google-cloud/pubsub');
+const { PubSub } = require('@google-cloud/pubsub');
 const Talk = require('./services/talk');
 const { URL } = require('url');
 const { Installation, Configuration, Team, User } = require('./models');
@@ -18,6 +18,7 @@ const reporting = require('./reporting');
 function onError(err) {
   reporting.report(err, () => {
     logger.error('error during PubSub processing', { err: err.message });
+    process.exit(1);
   });
 }
 

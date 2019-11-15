@@ -1,6 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const CryptoJS = require('crypto-js');
 const uuid = require('uuid');
 const jwt = require('jsonwebtoken');

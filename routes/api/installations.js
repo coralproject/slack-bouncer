@@ -4,7 +4,7 @@ const logger = require('../../logger');
 const config = require('../../config');
 const Talk = require('../../services/talk');
 const { Installation } = require('../../models');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const CryptoJS = require('crypto-js');
 const router = express.Router();
 
